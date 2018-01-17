@@ -1,6 +1,6 @@
 {
   "name": "cockpit-orm",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "ORM for Cockpit Headless CMS",
   "main": "lib/index.js",
   "scripts": {
