@@ -1,9 +1,9 @@
-import { entriesHead } from './utils';
+import { arrayHead, entriesHead } from './utils';
 
 export default class Collection {
+  static collectionName = '';
   static slugField = 'name_slug';
 
-  collectionName = '';
   cockpit = {};
 
   skip = 0;
@@ -13,30 +13,37 @@ export default class Collection {
   _getEntries = x => ({ entries }) => x(entries);
   _getData = x => ({ data }) => x(data);
 
-  constructor({ Entry, cockpit, collectionName, ...options }) {
+  constructor({ Entry, cockpit, ...options }) {
     this.options = {
       limit: this.limit,
       lang: this.lang,
       ...options,
     };
 
-    this.collectionName = collectionName;
     this.cockpit = cockpit;
     this.Entry = Entry;
 
-    this.collection = cockpit.collection(this.collectionName, this.options);
+    const { collectionName } = this.constructor;
+
+    if (!collectionName)
+      return console.error(
+        'You must specify a static collectionName property on %s class',
+        this.constructor.name,
+      );
+
+    this.collection = cockpit.collection(collectionName, this.options);
   }
 
   getFields() {
     return this.cockpit
-      .collectionSchema(this.collectionName)
+      .collectionSchema(this.constructor.collectionName)
       .then(({ fields }) => fields);
   }
 
   getEntries(fields, extraOptions) {
     return this.cockpit
       .collectionGet(
-        this.collectionName,
+        this.constructor.collectionName,
         this.getOptions({ ...extraOptions, fields }),
       )
       .then(({ entries }) => {
@@ -47,39 +54,33 @@ export default class Collection {
 
   fetch(fields, extraOptions) {
     return this.cockpit.collection(
-      this.collectionName,
+      this.constructor.collectionName,
+      // TODO check fields vs filter.
       this.getOptions({ ...extraOptions, fields }),
     );
   }
 
-  getOneBySlug(slug, filters) {
-    return entriesHead(
-      this.cockpit.collection(this.collectionName, {
-        ...this.options,
-        filters: {
-          [this.slugField]: slug,
-          ...filters,
-        },
-      }),
-    );
-  }
+  getOneBySlug(slug, fields, extraOptions) {
+    const fetch = this.fetch(fields, extraOptions);
 
-  getOneByFieldSlug(field, slug, filters) {
-    return entriesHead(
-      this.cockpit.collection(this.collectionName, {
-        ...this.options,
-        filters: {
-          [this.slugField]: slug,
-          ...filters,
+    return {
+      promise: this.fetch(fields, {
+        filter: {
+          [this.constructor.slugField]: slug,
         },
-      }),
-    );
+        ...extraOptions,
+      }).promise.then(entriesHead),
+      get: x => fetch.get(arrayHead(this._getEntries(x))),
+      watch: x => fetch.watch(arrayHead(this._getEntries(x))),
+      on: (event, x) => fetch.on(event, arrayHead(this._getData(x))),
+    };
   }
 
   getObject(fields, extraOptions) {
     const fetch = this.fetch(fields, extraOptions);
 
     return {
+      promise: fetch.promise.then(this._getEntries(x => x)),
       get: x => fetch.get(this._getEntries(x)),
       watch: x => fetch.watch(this._getEntries(x)),
       on: (event, x) => fetch.on(event, this._getData(x)),
@@ -90,6 +91,7 @@ export default class Collection {
     const fetch = this.fetch(fields, extraOptions);
 
     return {
+      promise: fetch.get(this.mapEntries(x => x)),
       get: x => fetch.get(this.mapEntries(x)),
       watch: x => fetch.watch(this.mapEntries(x)),
       on: (event, x) => fetch.on(event, this._getData(x)),
@@ -100,7 +102,7 @@ export default class Collection {
     if (!this.Entry) {
       console.error(
         `You must specify a Entry class for this Collection: ${
-          this.collectionName
+          this.constructor.collectionName
         }`,
       );
     }

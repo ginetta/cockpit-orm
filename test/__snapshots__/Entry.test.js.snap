@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Should create without errors  1`] = `
+TestEntry {
+  "Map": Map {
+    "title" => "Foo bar",
+    "_by" => undefined,
+    "_created" => undefined,
+    "_id" => undefined,
+    "_mby" => undefined,
+    "_modified" => undefined,
+    "_order" => undefined,
+  },
+  "cockpit": Object {},
+  "defaultSchema": Array [
+    "_by",
+    "_created",
+    "_id",
+    "_mby",
+    "_modified",
+    "_order",
+  ],
+  "fields": Object {
+    "title": "Foo bar",
+  },
+  "schema": Object {
+    "fields": Array [
+      Object {
+        "name": "title",
+      },
+    ],
+  },
+}
+`;

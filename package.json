@@ -4,9 +4,11 @@
   "description": "ORM for Cockpit Headless CMS",
   "main": "lib/index.js",
   "scripts": {
-		"build": "rm -rf lib/* && babel src --out-dir lib --source-maps",
+    "preversion": "npm run test && npm run build",
+    "prepublishOnly": "npm run test && npm run build",
+    "build": "rm -rf lib/* && babel src --out-dir lib",
     "dev": "rm -rf lib/* && babel --watch src --out-dir lib --source-maps",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "eslint src && jest ."
   },
   "keywords": [
     "cockpit",
@@ -17,7 +19,7 @@
   "author": "Bruno Lourenço",
   "license": "ISC",
   "peerDependencies": {
-    "cockpit-sdk": "0.5.0"
+    "cockpit-sdk": "0.6.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -35,11 +37,14 @@
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-prettier": "^2.4.0",
     "eslint-plugin-react": "^7.5.1",
+    "jest": "^22.1.2",
     "prettier": "^1.9.2",
     "prettier-eslint": "^8.7.0"
   },
   "dependencies": {
+    "cockpit-sdk": "^0.6.0",
     "is-empty": "^1.2.0",
-    "lodash.get": "^4.4.2"
+    "lodash.get": "^4.4.2",
+    "lodash.set": "^4.3.2"
   }
 }

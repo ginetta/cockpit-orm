@@ -1,1 +1,4 @@
-extends: 'eslint-config-skeleton'
+extends: eslint-config-skeleton
+rules:
+  no-underscore-dangle: off
+  no-console: off

@@ -1,9 +1,13 @@
 import get from 'lodash.get';
+import set from 'lodash.set';
 import isEmpty from 'is-empty';
+import { entriesHead } from './utils';
 
 const has = x => !isEmpty(x);
 
 export default class Entry {
+  static slugField = 'name_slug';
+
   Map = new Map();
 
   defaultSchema = ['_by', '_created', '_id', '_mby', '_modified', '_order'];
@@ -13,14 +17,22 @@ export default class Entry {
     this.fields = fields;
     this.schema = schema;
 
-    if (!this.fields) return console.error('Entry fields cannot be empty');
-    if (!this.schema) return console.error('Entry schema cannot be empty');
+    if (!this.fields) return;
+    if (!this.schema) return;
 
-    [...schema.fields, ...this.defaultSchema.map(name => ({ name }))].forEach(
-      ({ name }) => {
-        this.Map.set(name, this.fields[name]);
-      },
-    );
+    const slugFields = this.schema.fields
+      .filter(({ options }) => options && options.slug)
+      .map(({ name }) => ({ name: `${name}_slug` }));
+
+    const possibleFields = [
+      ...schema.fields,
+      ...slugFields,
+      ...this.defaultSchema.map(name => ({ name })),
+    ];
+
+    possibleFields.forEach(({ name }) => {
+      this.Map.set(name, this.fields[name]);
+    });
   }
 
   get(field, path) {
@@ -39,8 +51,24 @@ export default class Entry {
     return has(this.Map.get(field));
   }
 
-  set(field) {
-    return this.Map.set(field);
+  set(field, value, path) {
+    if (path) {
+      const sett = set(this.get(field), path, value);
+
+      return this.Map.set(sett);
+    }
+
+    this.Map.set(field, value);
+
+    return this;
+  }
+
+  setSlug(slug) {
+    const { slugField } = this.constructor;
+
+    this.set(slugField, slug);
+
+    return this;
   }
 
   forEach(fn) {
@@ -51,5 +79,56 @@ export default class Entry {
     return this.cockpit.image(this.get(field, 'path'), options);
   }
 
-  save() {}
+  sync() {
+    const { slugField } = this.constructor;
+    const filter = { [slugField]: this.get(slugField) };
+
+    const collection = this.cockpit.collection(
+      this.constructor.collectionName,
+      { filter },
+    );
+
+    return collection.promise.then(entriesHead).then(entry => {
+      this.Map = new this.constructor(entry).Map;
+
+      return this;
+    });
+  }
+
+  watch(callback) {
+    const { slugField } = this.constructor;
+    const filter = {};
+
+    if (slugField) filter[slugField] = this.get(slugField);
+    if (this.has('_id')) filter._id = this.get('_id');
+
+    const collection = this.cockpit.collection(
+      this.constructor.collectionName,
+      { filter },
+    );
+
+    collection.watch(entry => {
+      this.Map = new this.constructor(entriesHead(entry)).Map;
+
+      callback(this);
+    });
+
+    collection.on('preview', entry => {
+      this.Map = new this.constructor(entry.data).Map;
+
+      callback(this);
+    });
+
+    return this;
+  }
+
+  toObject() {
+    return [...this.Map].reduce(
+      (prev, curr) => ({
+        ...prev,
+        [curr[0]]: curr[1],
+      }),
+      {},
+    );
+  }
 }

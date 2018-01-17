@@ -1,2 +1,5 @@
-example
-.eslint
+.babelrc
+.eslintignore
+.eslintrc
+examples
+src

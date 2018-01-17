@@ -1,4 +1,4 @@
-export const arrayHead = arr => (arr.length ? arr[0] : null);
+export const arrayHead = arr => (arr && arr.length ? arr[0] : null);
 export const entriesHead = ({ entries }) =>
   entries.length ? entries[0] : null;
 export const getField = (field, lang, suffix = '') =>
