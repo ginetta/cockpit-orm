@@ -95,17 +95,18 @@ export default class Entry {
     });
   }
 
-  watch(callback) {
-    const { slugField } = this.constructor;
+  getCollection() {
     const filter = {};
+    const { slugField } = this.constructor;
 
     if (slugField) filter[slugField] = this.get(slugField);
     if (this.has('_id')) filter._id = this.get('_id');
 
-    const collection = this.cockpit.collection(
-      this.constructor.collectionName,
-      { filter },
-    );
+    return this.cockpit.collection(this.constructor.collectionName, { filter });
+  }
+
+  watch(callback) {
+    const collection = this.getCollection();
 
     collection.watch(entry => {
       this.Map = new this.constructor(entriesHead(entry)).Map;
@@ -120,6 +121,13 @@ export default class Entry {
     });
 
     return this;
+  }
+
+  save() {
+    return this.cockpit.collectionSave(
+      this.constructor.collectionName,
+      this.toObject(),
+    );
   }
 
   toObject() {
