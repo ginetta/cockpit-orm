@@ -8,8 +8,6 @@ npm install cockpit-orm
 yarn add cockpit-orm
 ```
 
-## Get started:
-
 # Entry
 
 The Entry class is for mapping **one** single entry of a collection.
