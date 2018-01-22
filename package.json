@@ -19,7 +19,7 @@
   "author": "Bruno Lourenço",
   "license": "ISC",
   "peerDependencies": {
-    "cockpit-sdk": "0.6.0"
+    "cockpit-sdk": "^0.8.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -28,12 +28,14 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-plugin-transform-regenerator": "^6.26.0",
     "babel-preset-react-app": "^3.1.0",
+    "cockpit-sdk": "^0.8.3",
     "eslint": "^4.15.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-config-react-app": "^2.0.1",
     "eslint-config-skeleton": "^0.1.1",
     "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jest": "^21.7.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-prettier": "^2.4.0",
     "eslint-plugin-react": "^7.5.1",
@@ -42,7 +44,6 @@
     "prettier-eslint": "^8.7.0"
   },
   "dependencies": {
-    "cockpit-sdk": "^0.6.0",
     "is-empty": "^1.2.0",
     "lodash.get": "^4.4.2",
     "lodash.set": "^4.3.2"

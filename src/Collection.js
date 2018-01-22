@@ -3,6 +3,8 @@ import { arrayHead, entriesHead } from './utils';
 export default class Collection {
   static collectionName = '';
   static slugField = 'name_slug';
+  static cockpit = null;
+  static Entry = null;
 
   cockpit = {};
 
@@ -13,15 +15,12 @@ export default class Collection {
   _getEntries = x => ({ entries }) => x(entries);
   _getData = x => ({ data }) => x(data);
 
-  constructor({ Entry, cockpit, ...options }) {
+  constructor(options) {
     this.options = {
       limit: this.limit,
       lang: this.lang,
       ...options,
     };
-
-    this.cockpit = cockpit;
-    this.Entry = Entry;
 
     const { collectionName } = this.constructor;
 
@@ -31,29 +30,29 @@ export default class Collection {
         this.constructor.name,
       );
 
-    this.collection = cockpit.collection(collectionName, this.options);
+    this.collection = this.constructor.cockpit.collection(
+      collectionName,
+      this.options,
+    );
   }
 
   getFields() {
-    return this.cockpit
+    return this.constructor.cockpit
       .collectionSchema(this.constructor.collectionName)
       .then(({ fields }) => fields);
   }
 
   getEntries(fields, extraOptions) {
-    return this.cockpit
+    return this.constructor.cockpit
       .collectionGet(
         this.constructor.collectionName,
         this.getOptions({ ...extraOptions, fields }),
       )
-      .then(({ entries }) => {
-        console.log('entries: ', entries);
-        return entries;
-      });
+      .then(({ entries }) => entries);
   }
 
   fetch(fields, extraOptions) {
-    return this.cockpit.collection(
+    return this.constructor.cockpit.collection(
       this.constructor.collectionName,
       // TODO check fields vs filter.
       this.getOptions({ ...extraOptions, fields }),
@@ -99,7 +98,7 @@ export default class Collection {
   }
 
   mapEntries(x) {
-    if (!this.Entry) {
+    if (!this.constructor.Entry) {
       console.error(
         `You must specify a Entry class for this Collection: ${
           this.constructor.collectionName
@@ -107,7 +106,7 @@ export default class Collection {
       );
     }
 
-    return ({ entries }) => x(entries.map(e => new this.Entry(e)));
+    return ({ entries }) => x(entries.map(e => new this.constructor.Entry(e)));
   }
 
   getOptions(extraOptions) {
