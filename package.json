@@ -17,7 +17,7 @@
     "headless"
   ],
   "author": "Bruno Lourenço",
-  "license": "ISC",
+  "license": "MIT",
   "peerDependencies": {
     "cockpit-sdk": "^0.8.3"
   },
@@ -47,5 +47,17 @@
     "is-empty": "^1.2.0",
     "lodash.get": "^4.4.2",
     "lodash.set": "^4.3.2"
-  }
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ginetta/cockpit-orm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ginetta/cockpit-orm/issues"
+  },
+  "homepage": "https://github.com/ginetta/cockpit-orm#readme"
 }
