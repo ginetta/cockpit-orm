@@ -77,13 +77,16 @@ export default class Entry {
     return this.constructor.cockpit.image(this.get(field, 'path'), options);
   }
 
-  sync() {
+  sync(options = {}) {
     const { slugField } = this.constructor;
-    const filter = { [slugField]: this.get(slugField) };
+    const filter = {
+      [slugField]: this.get(slugField),
+      ...(options.filter || {}),
+    };
 
     const collection = this.constructor.cockpit.collection(
       this.constructor.schema.name,
-      { filter },
+      { ...options, filter },
     );
 
     return collection.promise.then(entriesHead).then(entry => {
